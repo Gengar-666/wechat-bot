@@ -61,8 +61,6 @@ dog_Reply = {
 # 讨论组信息监听
 @itchat.msg_register([TEXT, PICTURE, RECORDING, ATTACHMENT, VIDEO, SHARING, SYSTEM, FRIENDS, NOTE], isGroupChat=True)
 def information(msg):
-    print msg['Content']
-    print msg['Type']
     botName = itchat.get_friends(update=True)[0]['NickName']
     chat_rooms = itchat.get_chatrooms()
     if len(chat_rooms) > 0:
@@ -222,6 +220,14 @@ def revoke_msg(msg):
         #     shutil.move(rec_tmp_dir + str(old_msg.get('msg_content')), revoke_file_dir)
 
 
+def afternoon():
+    for i in itchat.get_chatrooms():
+        itchat.send_msg('你们特么的下午好啊！', i['UserName'])
+
+def evening():
+    for i in itchat.get_chatrooms():
+        itchat.send_msg('你们特么的晚上好啊！', i['UserName'])
+
 # 每隔五种分钟执行一次清理任务
 def clear_cache():
     dog_num = 6
@@ -239,6 +245,8 @@ def clear_cache():
 # 开始轮询任务
 def start_schedule():
     sched.add_job(clear_cache, 'interval', minutes=2)
+    sched.add_job(afternoon, 'cron', hour=13)
+    sched.add_job(evening, 'cron', hour=20)
     sched.start()
 
 
