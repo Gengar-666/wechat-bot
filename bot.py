@@ -101,7 +101,6 @@ def information(msg):
         if msg_from_user == "王二狗" \
             or msg_from_user == "哈小奇难得":
             global dog_num
-            print dog_num
             if dog_num > 0:
                 dog_num -= 1
                 if msg_type == 'Sharing':
@@ -216,38 +215,38 @@ def tulingBotReply(msg, user):
     itchat.send_msg(result['results'][0]['values']['text'], user)
 
 # 定时问候任务
+def morning():
+    for i in itchat.get_chatrooms():
+        itchat.send_msg('小哥哥小姐姐们，古德摸宁！', i['UserName'])
+
+# 定时问候任务
 def afternoon():
     for i in itchat.get_chatrooms():
-        itchat.send_msg('你们特么的下午好啊！', i['UserName'])
+        itchat.send_msg('小哥哥小姐姐们，你们特么的下午好啊！', i['UserName'])
 
 def evening():
     for i in itchat.get_chatrooms():
-        itchat.send_msg('你们特么的晚上好啊！', i['UserName'])
+        itchat.send_msg('小哥哥小姐姐们，你们特么的晚上好啊！', i['UserName'])
 
 # 每隔五种分钟执行一次清理任务
 def clear_cache():
     global rec_msg_dict
     global dog_num
     dog_num = 6
-    # # 当前时间
-    # cur_time = time.time()
-    # # 遍历字典，如果有创建时间超过2分钟(120s)的记录，删除，非文本的话，连文件也删除
-    # for key in list(rec_msg_dict.keys()):
-    #     if int(cur_time) - int(rec_msg_dict.get(key).get('msg_create_time')) > 120:
-    #         if not rec_msg_dict.get(key).get('msg_type') == 'Text':
-    #             file_path = os.path.join(rec_tmp_dir, rec_msg_dict.get(key).get('msg_content'))
-    #             if os.path.exists(file_path):
-    #                 os.remove(file_path)
-    rec_msg_dict.pop = {}
-    shutil.rmtree(rec_tmp_dir)
+    rec_msg_dict = {}
+    for root, dirs, files in os.walk(rec_tmp_dir, topdown=False):
+        for name in files:
+            os.remove(os.path.join(root, name))
+        for name in dirs:
+            os.rmdir(os.path.join(root, name))
 
 # 开始轮询任务
 def start_schedule():
     sched.add_job(clear_cache, 'interval', minutes=5)
+    sched.add_job(morning, 'cron', hour=8)
     sched.add_job(afternoon, 'cron', hour=13)
     sched.add_job(evening, 'cron', hour=20)
     sched.start()
-
 
 # 退出停止所有任务并清空缓存文件夹
 def after_logout():
