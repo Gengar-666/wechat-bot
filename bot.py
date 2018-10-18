@@ -257,6 +257,6 @@ if __name__ == '__main__':
     sched = BlockingScheduler()
     if not os.path.exists(rec_tmp_dir):
         os.mkdir(rec_tmp_dir)
-    itchat.auto_login(hotReload=True, enableCmdQR=1)
+    itchat.auto_login(hotReload=True, enableCmdQR=2)
     itchat.run(blockThread=False)
     start_schedule()
