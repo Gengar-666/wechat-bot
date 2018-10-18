@@ -35,6 +35,7 @@ headers = {
     'Safari/537.36 '
 }
 
+# 怼狗话术
 dog_Reply = {
     '1': '叫个J8你叫',
     '2': '你瞎bb什么',
@@ -93,91 +94,72 @@ def information(msg):
 
         random_num = random.randint(0,20)
 
-        Reply = ' ???'
+        Reply = '???'
+
+        isCall = re.match(r'(.*)机器猫(.*)', str(msg_content))
 
         if msg_from_user == "王二狗" \
             or msg_from_user == "哈小奇难得":
             global dog_num
+            print dog_num
             if dog_num > 0:
                 dog_num -= 1
                 if msg_type == 'Sharing':
                     if random_num < 10:
-                        Reply = ' 你分享个什么gouJb东西'
+                        Reply = '你分享个什么gouJb东西'
                     else:
-                        Reply = ' 分享的什么玩意傻狗'
+                        Reply = '分享的什么玩意傻狗'
                 else:
                     Reply = dog_Reply.get(str(random_num))
 
                 itchat.send_msg('@' + msg_from_user + " " + Reply, msg['FromUserName'])
-                if random == 10:
+                if random_num <= 6:
                     itchat.send_image(img_file + 'dog.jpg', msg['FromUserName'])
-
-        elif msg_content == "机器猫" and msg_from_user != u'\uabed':
-            if random_num < 6:
-                Reply = ' 叫个J8你叫'
-            elif random_num > 3 and random_num < 10:
-                Reply = ' 想我了?'
-            itchat.send_msg(Reply, msg['FromUserName'])
-
-        elif msg_content == "机器猫" and msg_from_user == u'\uabed':
-            random_num2 = random.randint(0, 6)
-            if random_num2 < 6:
-                itchat.send_image(img_file + 'cat' + str(random_num2) + '.jpg', msg['FromUserName'])
-            else:
-                itchat.send_msg('喵喵喵~', msg['FromUserName'])
-
-        elif msg['isAt'] and len(msg_content) <= len(botName) + 2:
-            if msg_from_user == u'\uabed':
-                random_num2 = random.randint(0, 6)
-                if random_num2 < 6:
-                    itchat.send_image(img_file + 'cat' + str(random_num2) + '.jpg', msg['FromUserName'])
+        
+        elif isCall:
+            if isCall.group(2) == '':
+                if msg_from_user == u'\uabed':
+                    random_num2 = random.randint(0, 8)
+                    if random_num2 < 6:
+                        itchat.send_image(img_file + 'cat' + str(random_num2) + '.jpg', msg['FromUserName'])
+                    else:
+                        itchat.send_msg('喵喵喵~', msg['FromUserName'])
                 else:
-                    itchat.send_msg('喵喵喵~', msg['FromUserName'])
+                    if random_num < 6:
+                        Reply = '叫个J8你叫'
+                    elif random_num >= 6 and random_num < 15:
+                        Reply = '想我了?'
+                    itchat.send_msg(Reply, msg['FromUserName'])  
             else:
-                Reply = ' 干嘛?'
-                if random_num < 6:
-                    Reply = ' 叫个J8你叫'
-                elif random_num > 3 and random_num < 10:
-                    Reply = ' 想我了?'
-                itchat.send_msg(Reply, msg['FromUserName'])
-            
-        elif re.match(r'机器猫(.*?)', str(msg_content)):
-            # 接口请求数据
-            data = {
-                "reqType": 0,
-                "perception": {
-                    "inputText": {
-                        "text": str(msg_content)[9:]
-                    }
-                },
-                "userInfo": {
-                    "apiKey": "efbe8935873f4f7a9b4074b741a3e804",
-                    "userId": "123"
-                }
-            }
-            
-            # 请求接口
-            result = rq.post(api_url, headers=headers, json=data).json()
-            itchat.send_msg(result['results'][0]['values']['text'], msg['FromUserName'])
+                tulingBotReply(isCall.group(2), msg['FromUserName'])
+
+        elif re.match(r'(.*)爆照(.*)', str(msg_content)):
+            itchat.send_msg(str(msg_content), msg['FromUserName'])
+
+        elif msg_content == "爆照" \
+            or msg_content == "新人爆照" \
+            or re.match(r'爆照(.*?)', str(msg_content)):
+            tulingBotReply(str(msg_content)[9:], msg['FromUserName'])
 
         elif msg['isAt']:
-            # 接口请求数据
-            data = {
-                "reqType": 0,
-                "perception": {
-                    "inputText": {
-                        "text": str(msg_content)
-                    }
-                },
-                "userInfo": {
-                    "apiKey": "efbe8935873f4f7a9b4074b741a3e804",
-                    "userId": "123"
-                }
-            }
-
-            # 请求接口
-            result = rq.post(api_url, headers=headers, json=data).json()
-            itchat.send_msg(result['results'][0]['values']['text'], msg['FromUserName'])
+            msg_content = str(msg_content[len(botName)+1:]).strip().replace(" ", "")
+            if msg_content == '':
+                if msg_from_user == u'\uabed':
+                    random_num2 = random.randint(0, 6)
+                    if random_num2 < 6:
+                        itchat.send_image(img_file + 'cat' + str(random_num2) + '.jpg', msg['FromUserName'])
+                    else:
+                        itchat.send_msg('喵喵喵~', msg['FromUserName'])
+                else:
+                    if random_num < 6:
+                        Reply = ' 叫个J8你叫'
+                    elif random_num >= 6 and random_num < 15:
+                        Reply = ' 想我了?'
+                    else: 
+                        Reply = ' 干嘛?'
+                    itchat.send_msg(Reply, msg['FromUserName'])
+            else:
+                tulingBotReply(msg_content, msg['FromUserName'])
 
 
 @itchat.msg_register([NOTE], isFriendChat=True, isGroupChat=True)
@@ -200,7 +182,7 @@ def revoke_msg(msg):
         revoke_file_type = type_obj.get(key, '一条文字信息')
         if old_msg.get('msg_from_user') != u'\uabed':
             itchat.send_msg(str("@" + nickName + " " + old_msg.get('msg_from_user') + "撤回了") + revoke_file_type, msg['FromUserName'])
-            itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了") + revoke_file_type + ": ", toUserName="filehelper")
+            itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), toUserName="filehelper")
 
         # 判断文msg_content是否存在，不存在说明可能是
             if os.path.exists(os.path.join(rec_tmp_dir, old_msg.get('msg_content'))):
@@ -214,12 +196,26 @@ def revoke_msg(msg):
                         or old_msg.get('msg_type') == 'Recording':
                     itchat.send_file(os.path.join(rec_tmp_dir, old_msg.get('msg_content')),
                                     toUserName="filehelper")
-        
-        # 判断文msg_content是否存在，存在的话移动到撤回文件夹里
-        # if os.path.exists(os.path.join(rec_tmp_dir, old_msg.get('msg_content'))):
-        #     shutil.move(rec_tmp_dir + str(old_msg.get('msg_content')), revoke_file_dir)
 
 
+#图灵机器人自动回复
+def tulingBotReply(msg, user):
+    data = {
+        "reqType": 0,
+        "perception": {
+            "inputText": {
+                "text": msg
+            }
+        },
+        "userInfo": {
+            "apiKey": "efbe8935873f4f7a9b4074b741a3e804",
+            "userId": "123"
+        }
+    }
+    result = rq.post(api_url, headers=headers, json=data).json()
+    itchat.send_msg(result['results'][0]['values']['text'], user)
+
+# 定时问候任务
 def afternoon():
     for i in itchat.get_chatrooms():
         itchat.send_msg('你们特么的下午好啊！', i['UserName'])
@@ -230,21 +226,24 @@ def evening():
 
 # 每隔五种分钟执行一次清理任务
 def clear_cache():
+    global rec_msg_dict
+    global dog_num
     dog_num = 6
-    # 当前时间
-    cur_time = time.time()
-    # 遍历字典，如果有创建时间超过2分钟(120s)的记录，删除，非文本的话，连文件也删除
-    for key in list(rec_msg_dict.keys()):
-        if int(cur_time) - int(rec_msg_dict.get(key).get('msg_create_time')) > 120:
-            if not rec_msg_dict.get(key).get('msg_type') == 'Text':
-                file_path = os.path.join(rec_tmp_dir, rec_msg_dict.get(key).get('msg_content'))
-                if os.path.exists(file_path):
-                    os.remove(file_path)
-            rec_msg_dict.pop(key)
+    # # 当前时间
+    # cur_time = time.time()
+    # # 遍历字典，如果有创建时间超过2分钟(120s)的记录，删除，非文本的话，连文件也删除
+    # for key in list(rec_msg_dict.keys()):
+    #     if int(cur_time) - int(rec_msg_dict.get(key).get('msg_create_time')) > 120:
+    #         if not rec_msg_dict.get(key).get('msg_type') == 'Text':
+    #             file_path = os.path.join(rec_tmp_dir, rec_msg_dict.get(key).get('msg_content'))
+    #             if os.path.exists(file_path):
+    #                 os.remove(file_path)
+    rec_msg_dict.pop = {}
+    shutil.rmtree(rec_tmp_dir)
 
 # 开始轮询任务
 def start_schedule():
-    sched.add_job(clear_cache, 'interval', minutes=2)
+    sched.add_job(clear_cache, 'interval', minutes=5)
     sched.add_job(afternoon, 'cron', hour=13)
     sched.add_job(evening, 'cron', hour=20)
     sched.start()
@@ -261,4 +260,4 @@ if __name__ == '__main__':
         os.mkdir(rec_tmp_dir)
     itchat.auto_login(hotReload=True)
     itchat.run(blockThread=False)
-    start_schedule() 
+    start_schedule()
