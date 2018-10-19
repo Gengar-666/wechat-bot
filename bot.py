@@ -115,7 +115,7 @@ def information(msg):
                 if random_num <= 6:
                     itchat.send_image(img_file + 'dog.jpg', msg['FromUserName'])
         
-        elif isCall:
+        elif isCall and not msg['isAt']:
             if isCall.group(2) == '':
                 if msg_from_user == u'\uabed':
                     random_num2 = random.randint(0, 8)
@@ -134,11 +134,6 @@ def information(msg):
 
         elif re.match(r'(.*)爆照(.*)', str(msg_content)):
             itchat.send_msg(str(msg_content), msg['FromUserName'])
-
-        elif msg_content == "爆照" \
-            or msg_content == "新人爆照" \
-            or re.match(r'爆照(.*?)', str(msg_content)):
-            tulingBotReply(str(msg_content)[9:], msg['FromUserName'])
 
         elif msg['isAt']:
             print len(botName)
