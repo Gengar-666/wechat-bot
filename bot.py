@@ -22,7 +22,8 @@ img_file = os.path.join(os.getcwd(), 'img/')
 # 存储数据的字典
 rec_msg_dict = {}  
 
-switch = True
+# 关闭的讨论组集合
+closeArr = []
 
 # 怼狗次数
 dog_num = 6
@@ -64,10 +65,10 @@ dog_Reply = {
 # 讨论组信息监听
 @itchat.msg_register([TEXT, PICTURE, RECORDING, ATTACHMENT, VIDEO, SHARING, SYSTEM, FRIENDS, NOTE], isGroupChat=True)
 def information(msg):
-    global switch
+    global closeArr
     botName = itchat.get_friends(update=True)[0]['NickName']
     chat_rooms = itchat.get_chatrooms()
-    if len(chat_rooms) > 0 and switch:
+    if len(chat_rooms) > 0 and not msg['User']['NickName'] in closeArr:
         msg_id = msg['MsgId']
         msg_from_user = msg['ActualNickName']
         msg_content = ''
@@ -119,8 +120,8 @@ def information(msg):
                     itchat.send_image(img_file + 'dog.jpg', msg['FromUserName'])
 
         elif re.match(r'(.*)关闭(.*)', str(msg_content)) and msg_from_user == u'\uabed' and msg['isAt']:
-            switch = False
-            itchat.send_msg('我一定会回来的！[机器人已关闭]', msg['FromUserName'])
+            closeArr.append(msg['User']['NickName'])
+            itchat.send_msg('我一定会回来的！喵~ [机器猫已关闭]', msg['FromUserName'])
         
         elif isCall and not msg['isAt']:
             if isCall.group(2) == '':
@@ -161,11 +162,10 @@ def information(msg):
                     itchat.send_msg(Reply, msg['FromUserName'])
             else:
                 tulingBotReply(msg_content, msg['FromUserName'])
-    elif len(chat_rooms) > 0 and not switch: 
-        if re.match(r'(.*)开启(.*)', str(msg['Content'])) and msg['ActualNickName'] == u'\uabed' and msg['isAt'] and not switch:
-            switch = True
-            itchat.send_msg('我喵汉三又回来了！[机器人已开启]', msg['FromUserName'])
-
+    elif len(chat_rooms) > 0 and msg['User']['NickName'] in closeArr: 
+        if re.match(r'(.*)开启(.*)', str(msg['Content'])) and msg['ActualNickName'] == u'\uabed' and msg['isAt'] and msg['User']['NickName'] in closeArr:
+            closeArr.remove(msg['User']['NickName'])
+            itchat.send_msg('我喵汉三又回来了~ [机器猫已开启]', msg['FromUserName'])
 
 @itchat.msg_register([NOTE], isFriendChat=True, isGroupChat=True)
 def revoke_msg(msg):
@@ -238,8 +238,6 @@ def evening():
 def clear_cache():
     global rec_msg_dict
     global dog_num
-    global switch
-    switch = True
     dog_num = 6
     rec_msg_dict = {}
     for root, dirs, files in os.walk(rec_tmp_dir, topdown=False):
