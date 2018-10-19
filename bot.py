@@ -141,7 +141,9 @@ def information(msg):
             tulingBotReply(str(msg_content)[9:], msg['FromUserName'])
 
         elif msg['isAt']:
+            print len(botName)
             msg_content = str(msg_content[len(botName)+1:]).strip().replace(" ", "")
+            print msg_content
             if msg_content == '':
                 if msg_from_user == u'\uabed':
                     random_num2 = random.randint(0, 6)
