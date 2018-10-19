@@ -130,15 +130,14 @@ def information(msg):
                         Reply = '想我了?'
                     itchat.send_msg(Reply, msg['FromUserName'])  
             else:
+                print 1
                 tulingBotReply(isCall.group(2), msg['FromUserName'])
 
         elif re.match(r'(.*)爆照(.*)', str(msg_content)):
             itchat.send_msg(str(msg_content), msg['FromUserName'])
 
         elif msg['isAt']:
-            print len(botName)
             msg_content = str(msg_content[len(botName)+1:]).strip().replace(" ", "")
-            print msg_content
             if msg_content == '':
                 if msg_from_user == u'\uabed':
                     random_num2 = random.randint(0, 6)
@@ -155,6 +154,7 @@ def information(msg):
                         Reply = ' 干嘛?'
                     itchat.send_msg(Reply, msg['FromUserName'])
             else:
+                print 3
                 tulingBotReply(msg_content, msg['FromUserName'])
 
 
