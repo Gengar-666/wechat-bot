@@ -137,7 +137,6 @@ def information(msg):
                         Reply = '想我了?'
                     itchat.send_msg(Reply, msg['FromUserName'])  
             else:
-                print 1
                 tulingBotReply(isCall.group(2), msg['FromUserName'])
 
         elif re.match(r'(.*)爆照(.*)', str(msg_content)):
@@ -161,7 +160,6 @@ def information(msg):
                         Reply = ' 干嘛?'
                     itchat.send_msg(Reply, msg['FromUserName'])
             else:
-                print 3
                 tulingBotReply(msg_content, msg['FromUserName'])
     elif len(chat_rooms) > 0 and not switch: 
         if re.match(r'(.*)开启(.*)', str(msg['Content'])) and msg['ActualNickName'] == u'\uabed' and msg['isAt'] and not switch:
