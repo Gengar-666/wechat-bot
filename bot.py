@@ -16,11 +16,13 @@ sys.setdefaultencoding('utf8')
 # 文件临时存储文件夹
 rec_tmp_dir = os.path.join(os.getcwd(), 'tmp/')
 
-# 撤回文件存储文件夹
+# 回复图片
 img_file = os.path.join(os.getcwd(), 'img/')
 
 # 存储数据的字典
 rec_msg_dict = {}  
+
+switch = True
 
 # 怼狗次数
 dog_num = 6
@@ -62,9 +64,10 @@ dog_Reply = {
 # 讨论组信息监听
 @itchat.msg_register([TEXT, PICTURE, RECORDING, ATTACHMENT, VIDEO, SHARING, SYSTEM, FRIENDS, NOTE], isGroupChat=True)
 def information(msg):
+    global switch
     botName = itchat.get_friends(update=True)[0]['NickName']
     chat_rooms = itchat.get_chatrooms()
-    if len(chat_rooms) > 0:
+    if len(chat_rooms) > 0 and switch:
         msg_id = msg['MsgId']
         msg_from_user = msg['ActualNickName']
         msg_content = ''
@@ -114,6 +117,14 @@ def information(msg):
                 itchat.send_msg('@' + msg_from_user + " " + Reply, msg['FromUserName'])
                 if random_num <= 6:
                     itchat.send_image(img_file + 'dog.jpg', msg['FromUserName'])
+
+        elif re.match(r'(.*)关闭(.*)', str(msg_content)) and msg_from_user == u'\uabed' and msg['isAt']:
+            switch = False
+            itchat.send_msg('我一定会回来的！[机器人已关闭]', msg['FromUserName'])
+
+        elif re.match(r'(.*)开启(.*)', str(msg_content)) and msg_from_user == u'\uabed' and msg['isAt'] and not switch:
+            switch = True
+            itchat.send_msg('我喵汉三又回来了！[机器人已开启]', msg['FromUserName'])
         
         elif isCall and not msg['isAt']:
             if isCall.group(2) == '':
@@ -229,6 +240,8 @@ def evening():
 def clear_cache():
     global rec_msg_dict
     global dog_num
+    global switch
+    switch = True
     dog_num = 6
     rec_msg_dict = {}
     for root, dirs, files in os.walk(rec_tmp_dir, topdown=False):
