@@ -164,7 +164,7 @@ def information(msg):
                 print 3
                 tulingBotReply(msg_content, msg['FromUserName'])
     elif len(chat_rooms) > 0 and not switch: 
-        if re.match(r'(.*)开启(.*)', str(msg_content)) and msg_from_user == u'\uabed' and msg['isAt'] and not switch:
+        if re.match(r'(.*)开启(.*)', str(msg['Content'])) and msg['ActualNickName'] == u'\uabed' and msg['isAt'] and not switch:
             switch = True
             itchat.send_msg('我喵汉三又回来了！[机器人已开启]', msg['FromUserName'])
 
