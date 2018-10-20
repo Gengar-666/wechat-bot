@@ -26,7 +26,7 @@ rec_msg_dict = {}
 closeArr = []
 
 # 怼狗次数
-dog_num = 6
+dog_num = 3
 
 # 图灵API接口
 api_url = 'http://openapi.tuling123.com/openapi/api/v2'
@@ -46,20 +46,60 @@ dog_Reply = {
     '4': '一个反身碎骨Q!跑你麻痹的东方明珠塔!',
     '5': '老子打烂你的香蕉船！',
     '6': '干尼玛折耳根香油',
-    '7': '蒙多蒙多，棒皮棒皮',
+    '7': '撤回！',
     '8': '你叫他妈的象拔蚌',
     '9': '我这装备，现在一个R，简直是TM终极蛇怪铁蛋火车侠日尼玛威猛先生无敌风火轮上去就是一顿敲，打的你这个臭嗨香蕉船皮皮怪立马稀巴烂成一片太平洋',
     '10': '傻狗闭嘴！',
     '11': '你在bb老子一拳把黄浦江的水打飞',
-    '12': '你是真的皮，我反手就是一个翻皮水',
+    '12': '大吉大利，今晚吃鸡',
     '13': '以为自己很帅?不存在的。',
     '14': '你骚任你骚，我补我的刀',
     '15': '我对着你的狗头就是一记重抓萧峰标葵花起跳马氏跑动杀接起立再一脚下盘不是很稳打出KO',
-    '16': '铁头娃，愣头青！头铁得就没边了！你这个头就是平板锅做的，多铁啊',
+    '16': '你这个头就是平板锅做的，多铁啊',
     '17': '你是真皮沙发！',
-    '18': '摆摆手~你知道吗?如果你不知道，你就没有灵性',
-    '19': '你的头是真的铁，铁头娃。',
-    '20': '你怕是石乐志'
+    '18': '真香警告',
+    '19': '你怕是石乐志',
+    '20': 'CNMua~',
+    '21': '再bb把你抓去和袋鼠打拳击',
+    '22': '再bb把你发配到南极捡企鹅屎',
+    '23': '5fuck缩',
+    '24': 'funny🐎的pee',
+    '25': '该死，我的老伙计你真是坏极了，就像发了霉的烂橘子',
+    '26': '2B不只是铅笔，还有你',
+    '27': '你不会是不知火舞的弟弟不知好歹吧',
+    '28': '看在你丑的份上,就当你说的是对的吧',
+    '29': '吔屎啦你',
+    '30': '你吹咩',
+    '31': '躝开',
+    '32': '讲甘多托膝咩，吔个包先拉',
+    '33': '雷猴啊，索嗨',
+    '34': '你快d行柒开',
+    '35': '你今日唔记得带个脑出街咩？',
+    '36': '你叫咩，我都劈你只扑街',
+    '37': '我冇👀睇你，扑街',
+    '38': '睇到你个样我就想报警',
+    '39': '收声啦，锁嗨',
+    '40': '傻仔 都话咗你个死人白痴仔 讲野唔仑得正',
+    '41': '叼你啊死捞头,信悟信我起你天灵盖度疴督屎啊',
+    '42': '十足一个蒸山瓜，无哩分寸又浮夸，是人见到想升你两巴',
+    '43': '我顶你的肺，我戳你个咀',
+    '44': '人之初，口多多！！手指指，食鸡屎！！',
+    '45': '丢',
+    '46': '你信唔信我收你皮！',
+    '47': '你睇下你，整个麻甩佬甘样，不好行埋黎啊',
+    '48': '有种你唔好走等我call友',
+    '49': '有种你讲多次',
+    '50': '叼你卤味！',
+    '51': '你条粉肠',
+    '52': '信唔信我一巴hum到你阿妈都唔认得',
+    '53': '傻狗，退下',
+    '54': '叫爸爸',
+    '55': '你再bb一句试试',
+    '56': '侬脑子瓦特了',
+    '57': '傻狗！',
+    '58': '？？？',
+    '59': '哪来的傻狗',
+    '60': '叫爸爸'
 }
 
 # 讨论组信息监听
@@ -77,8 +117,9 @@ def information(msg):
         msg_create_time = msg['CreateTime']
         msg_type = msg['Type']
 
-        if msg['Type'] == 'Text':
-            msg_content = msg['Content']
+        if msg['Type'] == 'Text' \
+            or msg['Type'] == 'Sharing':
+                msg_content = msg['Content']
         elif msg['Type'] == 'Picture' \
                 or msg['Type'] == 'Recording' \
                 or msg['Type'] == 'Video' \
@@ -96,14 +137,12 @@ def information(msg):
             }
         })
 
-        random_num = random.randint(0,20)
-
-        Reply = '???'
-
         isCall = re.match(r'(.*)机器猫(.*)', str(msg_content))
 
         if msg_from_user == "王二狗" \
             or msg_from_user == "哈小奇难得":
+            random_num = random.randint(0,60)
+            Reply = ''
             global dog_num
             if dog_num > 0:
                 dog_num -= 1
@@ -114,29 +153,21 @@ def information(msg):
                         Reply = '分享的什么玩意傻狗'
                 else:
                     Reply = dog_Reply.get(str(random_num))
-
                 itchat.send_msg('@' + msg_from_user + " " + Reply, msg['FromUserName'])
-                if random_num <= 6:
-                    itchat.send_image(img_file + 'dog.jpg', msg['FromUserName'])
+                if random.randint(0, 5) <= 2:
+                    itchat.send_image(img_file + random.randint(0, 5) + '.jpg', msg['FromUserName'])
 
         elif re.match(r'(.*)关闭(.*)', str(msg_content)) and msg_from_user == u'\uabed' and msg['isAt']:
             closeArr.append(msg['User']['NickName'])
-            itchat.send_msg('我一定会回来的！喵~ [机器猫已关闭]', msg['FromUserName'])
+            itchat.send_msg('机器猫已关闭', msg['FromUserName'])
         
         elif isCall and not msg['isAt']:
             if isCall.group(2) == '':
-                if msg_from_user == u'\uabed':
-                    random_num2 = random.randint(0, 8)
-                    if random_num2 < 6:
-                        itchat.send_image(img_file + 'cat' + str(random_num2) + '.jpg', msg['FromUserName'])
-                    else:
-                        itchat.send_msg('喵喵喵~', msg['FromUserName'])
+                img_random = random.randint(0, 25)
+                if img_random < 20:
+                    itchat.send_image(img_file + 'cat' + str(img_random) + '.jpg', msg['FromUserName'])
                 else:
-                    if random_num < 6:
-                        Reply = '叫个J8你叫'
-                    elif random_num >= 6 and random_num < 15:
-                        Reply = '想我了?'
-                    itchat.send_msg(Reply, msg['FromUserName'])  
+                    itchat.send_msg('喵喵喵~', msg['FromUserName'])
             else:
                 tulingBotReply(isCall.group(2), msg['FromUserName'])
 
@@ -146,26 +177,18 @@ def information(msg):
         elif msg['isAt']:
             msg_content = str(msg_content[len(botName)+1:]).strip().replace(" ", "")
             if msg_content == '':
-                if msg_from_user == u'\uabed':
-                    random_num2 = random.randint(0, 6)
-                    if random_num2 < 6:
-                        itchat.send_image(img_file + 'cat' + str(random_num2) + '.jpg', msg['FromUserName'])
-                    else:
-                        itchat.send_msg('喵喵喵~', msg['FromUserName'])
+                img_random = random.randint(0, 25)
+                if img_random < 20:
+                    itchat.send_image(img_file + 'cat' + str(img_random) + '.jpg', msg['FromUserName'])
                 else:
-                    if random_num < 6:
-                        Reply = ' 叫个J8你叫'
-                    elif random_num >= 6 and random_num < 15:
-                        Reply = ' 想我了?'
-                    else: 
-                        Reply = ' 干嘛?'
-                    itchat.send_msg(Reply, msg['FromUserName'])
+                    itchat.send_msg('喵喵喵~', msg['FromUserName'])
             else:
                 tulingBotReply(msg_content, msg['FromUserName'])
+
     elif len(chat_rooms) > 0 and msg['User']['NickName'] in closeArr: 
         if re.match(r'(.*)开启(.*)', str(msg['Content'])) and msg['ActualNickName'] == u'\uabed' and msg['isAt'] and msg['User']['NickName'] in closeArr:
             closeArr.remove(msg['User']['NickName'])
-            itchat.send_msg('我喵汉三又回来了~ [机器猫已开启]', msg['FromUserName'])
+            itchat.send_msg('机器猫已开启', msg['FromUserName'])
 
 @itchat.msg_register([NOTE], isFriendChat=True, isGroupChat=True)
 def revoke_msg(msg):
@@ -181,13 +204,28 @@ def revoke_msg(msg):
             'Picture': "一张图片",
             'Recording': "一段语音",
             'Video': "一个视频",
-            'Attachment': "一个文件"
+            'Attachment': "一个文件",
+            'Sharing': "一个分享"
         }
         key = str(old_msg.get('msg_type'))
         revoke_file_type = type_obj.get(key, '一条文字信息')
+        if str(old_msg.get('msg_type')) == 'Sharing':
+            sharing_appid = re.match(r'(.*)appid="(.*)" sdkver', str(old_msg.get('msg_content'))).group(2)
+            sharing_from = re.match(r'(.*)<appname>(.*)</appname></appinfo>', str(old_msg.get('msg_content'))).group(2)
+            sharing_content = re.match(r'(.*)<title>(.*)</title><des>', str(old_msg.get('msg_content'))).group(2)
+            sharing_url = re.match(r'(.*)<url>(.*)</url><lowurl>', str(old_msg.get('msg_content'))).group(2)
+            if not sharing_appid:
+                revoke_file_type = '一个小程序'
+                old_msg['msg_content'] = sharing_content
+            else:
+                old_msg['msg_content'] = sharing_content + '\r\n链接：' + sharing_url + '\r\n来源：' + sharing_from
         if old_msg.get('msg_from_user') != u'\uabed':
-            itchat.send_msg(str("@" + nickName + " " + old_msg.get('msg_from_user') + "撤回了") + revoke_file_type, msg['FromUserName'])
-            itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), toUserName="filehelper")
+            if str(old_msg.get('msg_type')) == 'Text' \
+                or str(old_msg.get('msg_type')) == 'Sharing':
+                itchat.send_msg(str("@" + nickName + "\r\n" + old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), msg['FromUserName'])
+            else:
+                itchat.send_msg(str("@" + nickName + "\r\n" + old_msg.get('msg_from_user') + "撤回了" + revoke_file_type), msg['FromUserName'])
+                itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), toUserName="filehelper")
 
         # 判断文msg_content是否存在，不存在说明可能是
             if os.path.exists(os.path.join(rec_tmp_dir, old_msg.get('msg_content'))):
@@ -238,7 +276,7 @@ def evening():
 def clear_cache():
     global rec_msg_dict
     global dog_num
-    dog_num = 6
+    dog_num = 3
     rec_msg_dict = {}
     for root, dirs, files in os.walk(rec_tmp_dir, topdown=False):
         for name in files:
