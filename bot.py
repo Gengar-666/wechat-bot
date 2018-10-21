@@ -9,6 +9,7 @@ import os, shutil
 import re
 import random
 import requests as rq
+import PIL.Image as Image
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -103,7 +104,7 @@ dog_Reply = {
 }
 
 # 讨论组信息监听
-@itchat.msg_register([TEXT, PICTURE, RECORDING, ATTACHMENT, VIDEO, SHARING, SYSTEM, FRIENDS, NOTE], isGroupChat=True)
+@itchat.msg_register([TEXT, PICTURE, MAP, CARD, RECORDING, ATTACHMENT, VIDEO, SHARING, SYSTEM, FRIENDS, NOTE], isGroupChat=True)
 def information(msg):
     global closeArr
     botName = itchat.get_friends(update=True)[0]['NickName']
@@ -126,6 +127,15 @@ def information(msg):
                 or msg['Type'] == 'Attachment':
             msg_content = r"" + msg['FileName']
             msg['Text'](rec_tmp_dir + msg['FileName'])
+        elif msg['Type'] == 'Card':
+            msg_content = msg['RecommendInfo']['NickName'] + r" 的名片"
+        elif msg['Type'] == 'Map':
+            x, y, location = re.search(
+                "<location x=\"(.*?)\" y=\"(.*?)\".*label=\"(.*?)\".*", msg['OriContent']).group(1, 2, 3)
+            if location is None:
+                    msg_content = r"纬度->" + x.__str__() + " 经度->" + y.__str__()
+            else:
+                msg_content = r"" + location
 
         rec_msg_dict.update({
             msg_id: {
@@ -141,7 +151,7 @@ def information(msg):
 
         if msg_from_user == "王二狗" \
             or msg_from_user == "哈小奇难得":
-            random_num = random.randint(0,60)
+            random_num = random.randint(1,60)
             Reply = ''
             global dog_num
             if dog_num > 0:
@@ -155,21 +165,22 @@ def information(msg):
                     Reply = dog_Reply.get(str(random_num))
                 itchat.send_msg('@' + msg_from_user + " " + Reply, msg['FromUserName'])
                 if random.randint(0, 5) <= 2:
-                    itchat.send_image(img_file + random.randint(0, 5) + '.jpg', msg['FromUserName'])
+                    itchat.send_image(img_file + str(random.randint(1, 5)) + '.jpg', msg['FromUserName'])
 
         elif re.match(r'(.*)关闭(.*)', str(msg_content)) and msg_from_user == u'\uabed' and msg['isAt']:
             closeArr.append(msg['User']['NickName'])
             itchat.send_msg('机器猫已关闭', msg['FromUserName'])
         
-        elif isCall and not msg['isAt']:
+        elif isCall and not msg['IsAt']:
             if isCall.group(2) == '':
-                img_random = random.randint(0, 25)
+                img_random = random.randint(1, 25)
                 if img_random < 20:
                     itchat.send_image(img_file + 'cat' + str(img_random) + '.jpg', msg['FromUserName'])
                 else:
                     itchat.send_msg('喵喵喵~', msg['FromUserName'])
             else:
-                tulingBotReply(isCall.group(2), msg['FromUserName'])
+                if not choose_song(isCall.group(2), msg['FromUserName']):
+                    tulingBotReply(isCall.group(2), msg['FromUserName'])
 
         elif re.match(r'(.*)爆照(.*)', str(msg_content)):
             itchat.send_msg(str(msg_content), msg['FromUserName'])
@@ -177,13 +188,14 @@ def information(msg):
         elif msg['isAt']:
             msg_content = str(msg_content[len(botName)+1:]).strip().replace(" ", "")
             if msg_content == '':
-                img_random = random.randint(0, 25)
+                img_random = random.randint(1, 25)
                 if img_random < 20:
                     itchat.send_image(img_file + 'cat' + str(img_random) + '.jpg', msg['FromUserName'])
                 else:
                     itchat.send_msg('喵喵喵~', msg['FromUserName'])
             else:
-                tulingBotReply(msg_content, msg['FromUserName'])
+                if not choose_song(isCall.group(2), msg['FromUserName']):
+                    tulingBotReply(isCall.group(2), msg['FromUserName'])
 
     elif len(chat_rooms) > 0 and msg['User']['NickName'] in closeArr: 
         if re.match(r'(.*)开启(.*)', str(msg['Content'])) and msg['ActualNickName'] == u'\uabed' and msg['isAt'] and msg['User']['NickName'] in closeArr:
@@ -205,7 +217,9 @@ def revoke_msg(msg):
             'Recording': "一段语音",
             'Video': "一个视频",
             'Attachment': "一个文件",
-            'Sharing': "一个分享"
+            'Sharing': "一个分享",
+            'Map': "一个位置信息",
+            'Card': "一个名片分享",
         }
         key = str(old_msg.get('msg_type'))
         revoke_file_type = type_obj.get(key, '一条文字信息')
@@ -216,12 +230,14 @@ def revoke_msg(msg):
             sharing_url = re.match(r'(.*)<url>(.*)</url><lowurl>', str(old_msg.get('msg_content'))).group(2)
             if not sharing_appid:
                 revoke_file_type = '一个小程序'
-                old_msg['msg_content'] = sharing_content
+                old_msg['msg_content'] = re.match(r'(.*)<sourcedisplayname>(.*)</sourcedisplayname><commenturl>', str(old_msg.get('msg_content'))).group(2)
             else:
                 old_msg['msg_content'] = sharing_content + '\r\n链接：' + sharing_url + '\r\n来源：' + sharing_from
         if old_msg.get('msg_from_user') != u'\uabed':
             if str(old_msg.get('msg_type')) == 'Text' \
-                or str(old_msg.get('msg_type')) == 'Sharing':
+                or str(old_msg.get('msg_type')) == 'Sharing' \
+                or str(old_msg.get('msg_type')) == 'Map' \
+                or str(old_msg.get('msg_type')) == 'Card':
                 itchat.send_msg(str("@" + nickName + "\r\n" + old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), msg['FromUserName'])
             else:
                 itchat.send_msg(str("@" + nickName + "\r\n" + old_msg.get('msg_from_user') + "撤回了" + revoke_file_type), msg['FromUserName'])
@@ -240,6 +256,19 @@ def revoke_msg(msg):
                     itchat.send_file(os.path.join(rec_tmp_dir, old_msg.get('msg_content')),
                                     toUserName="filehelper")
 
+#点歌
+def choose_song(msg, user):
+    if re.match(r'(.*)点歌(.*)', msg):
+        m_name = re.match(r'(.*)点歌(.*)', msg).group(2).strip()
+        result = rq.get('http://47.99.180.56:3000/search?keywords=' + m_name + '&limit=1').json()['result']
+        play_id = result['songs'][0]['id']
+        music_name = result['songs'][0]['name']
+        singer = result['songs'][0]['artists'][0]['name']
+        send_msg = '【' + music_name + ' - ' + singer + '】，请快点击试听吧：' + 'https://music.163.com/m/song?id=' + str(play_id)
+        itchat.send_msg(send_msg, user)
+        return True
+    else:
+        return False
 
 #图灵机器人自动回复
 def tulingBotReply(msg, user):
@@ -277,16 +306,22 @@ def clear_cache():
     global rec_msg_dict
     global dog_num
     dog_num = 3
-    rec_msg_dict = {}
-    for root, dirs, files in os.walk(rec_tmp_dir, topdown=False):
-        for name in files:
-            os.remove(os.path.join(root, name))
-        for name in dirs:
-            os.rmdir(os.path.join(root, name))
+
+    # 当前时间
+    cur_time = time.time()
+
+    # 遍历字典，如果有创建时间超过2分钟(120s)的记录，删除，非文本的话，连文件也删除
+    for key in list(rec_msg_dict.keys()):
+        if int(cur_time) - int(rec_msg_dict.get(key).get('msg_create_time')) > 120:
+            if not rec_msg_dict.get(key).get('msg_type') == 'Text':
+                file_path = os.path.join(rec_tmp_dir, rec_msg_dict.get(key).get('msg_content'))
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+            rec_msg_dict.pop(key)
 
 # 开始轮询任务
 def start_schedule():
-    sched.add_job(clear_cache, 'interval', minutes=5)
+    sched.add_job(clear_cache, 'interval', minutes=2)
     sched.add_job(morning, 'cron', hour=8)
     sched.add_job(afternoon, 'cron', hour=13)
     sched.add_job(evening, 'cron', hour=20)
