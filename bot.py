@@ -9,7 +9,6 @@ import os, shutil
 import re
 import random
 import requests as rq
-import PIL.Image as Image
 import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
