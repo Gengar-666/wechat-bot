@@ -185,7 +185,7 @@ def information(msg):
             itchat.send_msg(str(msg_content), msg['FromUserName'])
 
         elif msg['isAt']:
-            msg_content = str(msg_content[len(botName)+1:]).strip().replace(" ", "")
+            msg_content = str(msg_content[len(str(botName))+1:]).strip().replace(" ", "")
             if msg_content == '':
                 img_random = random.randint(1, 25)
                 if img_random < 20:
