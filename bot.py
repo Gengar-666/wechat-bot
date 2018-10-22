@@ -119,7 +119,7 @@ def information(msg):
 
         if msg['Type'] == 'Text' \
             or msg['Type'] == 'Sharing':
-                msg_content = msg['Content']
+                msg_content = str(msg['Content']).replace("\n", "").replace("\t","")
         elif msg['Type'] == 'Picture' \
                 or msg['Type'] == 'Recording' \
                 or msg['Type'] == 'Video' \
@@ -224,13 +224,13 @@ def revoke_msg(msg):
         revoke_file_type = type_obj.get(key, '一条文字信息')
         if str(old_msg.get('msg_type')) == 'Sharing':
             sharing_appid = re.match(r'(.*)appid="(.*)" sdkver', str(old_msg.get('msg_content'))).group(2)
-            sharing_from = re.match(r'(.*)<appname>(.*)</appname></appinfo>', str(old_msg.get('msg_content'))).group(2)
-            sharing_content = re.match(r'(.*)<title>(.*)</title><des>', str(old_msg.get('msg_content'))).group(2)
-            sharing_url = re.match(r'(.*)<url>(.*)</url><lowurl>', str(old_msg.get('msg_content'))).group(2)
             if not sharing_appid:
                 revoke_file_type = '一个小程序'
-                old_msg['msg_content'] = re.match(r'(.*)<sourcedisplayname>(.*)</sourcedisplayname><commenturl>', str(old_msg.get('msg_content'))).group(2)
+                old_msg['msg_content'] = re.match(r'(.*)<sourcedisplayname>(.*)</sourcedisplayname><commenturl', str(old_msg.get('msg_content'))).group(2) + "，" + '\r\n描述：' + re.match(r'(.*)<title>(.*)</title><des />', str(old_msg.get('msg_content'))).group(2)
             else:
+                sharing_from = re.match(r'(.*)<appname>(.*)</appname></appinfo>', str(old_msg.get('msg_content'))).group(2)
+                sharing_content = re.match(r'(.*)<title>(.*)</title><des>', str(old_msg.get('msg_content'))).group(2)
+                sharing_url = re.match(r'(.*)<url>(.*)</url><lowurl', str(old_msg.get('msg_content'))).group(2)
                 old_msg['msg_content'] = sharing_content + '\r\n链接：' + sharing_url + '\r\n来源：' + sharing_from
         if old_msg.get('msg_from_user') != u'\uabed':
             if str(old_msg.get('msg_type')) == 'Text' \
