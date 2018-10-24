@@ -30,7 +30,7 @@ rec_msg_dict = {}
 closeArr = []
 
 # 怼狗次数
-dog_num = 5
+dog_num = 3
 
 # 图灵API接口
 api_url = 'http://openapi.tuling123.com/openapi/api/v2'
@@ -239,13 +239,13 @@ def revoke_msg(msg):
                 sharing_url = re.match(r'(.*)<url>(.*)</url><lowurl', str(old_msg.get('msg_content'))).group(2)
                 old_msg['msg_content'] = sharing_content + '\r\n链接：' + sharing_url + '\r\n来源：' + sharing_from
         if old_msg.get('msg_from_user') != u'\uabed':
-            if str(old_msg.get('msg_type')) == 'Text' \
-                or str(old_msg.get('msg_type')) == 'Sharing' \
+            if str(old_msg.get('msg_type')) == 'Sharing' \
                 or str(old_msg.get('msg_type')) == 'Map' \
                 or str(old_msg.get('msg_type')) == 'Card':
-                itchat.send_msg(str("@" + nickName + "\r\n" + old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), msg['FromUserName'])
+                itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), msg['FromUserName'])
+                itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), toUserName="filehelper")
             else:
-                itchat.send_msg(str("@" + nickName + "\r\n" + old_msg.get('msg_from_user') + "撤回了" + revoke_file_type), msg['FromUserName'])
+                itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": 具体什么内容我不告诉你"), msg['FromUserName'])
                 itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), toUserName="filehelper")
 
         # 判断文msg_content是否存在，不存在说明可能是
@@ -310,7 +310,7 @@ def evening():
 def clear_cache():
     global rec_msg_dict
     global dog_num
-    dog_num = 5
+    dog_num = 3
 
     # 当前时间
     cur_time = time.time()
