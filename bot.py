@@ -30,7 +30,7 @@ rec_msg_dict = {}
 closeArr = []
 
 # 怼狗次数
-dog_num = 1
+dog_num = 0
 
 # 图灵API接口
 api_url = 'http://openapi.tuling123.com/openapi/api/v2'
@@ -309,8 +309,6 @@ def evening():
 # 每隔五种分钟执行一次清理任务
 def clear_cache():
     global rec_msg_dict
-    global dog_num
-    dog_num = 1
 
     # 当前时间
     cur_time = time.time()
@@ -327,9 +325,14 @@ def clear_cache():
                     os.remove(file_path)
             rec_msg_dict.pop(key)
 
+def init_dog_num():
+    global dog_num
+    dog_num = 1
+
 # 开始轮询任务
 def start_schedule():
     sched.add_job(clear_cache, 'interval', minutes=2)
+    sched.add_job(init_dog_num, 'interval', minutes=30)
     sched.add_job(morning, 'cron', hour=8)
     sched.add_job(afternoon, 'cron', hour=13)
     sched.add_job(evening, 'cron', hour=20)
