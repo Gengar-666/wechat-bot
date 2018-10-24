@@ -30,7 +30,7 @@ rec_msg_dict = {}
 closeArr = []
 
 # 怼狗次数
-dog_num = 3
+dog_num = 1
 
 # 图灵API接口
 api_url = 'http://openapi.tuling123.com/openapi/api/v2'
@@ -85,7 +85,7 @@ dog_Reply = {
     '39': '收声啦，锁嗨',
     '40': '傻仔 都话咗你个死人白痴仔 讲野唔仑得正',
     '41': '叼你啊死捞头,信悟信我起你天灵盖度疴督屎啊',
-    '42': '十足一个蒸山瓜，无哩分寸又浮夸，是人见到想升你两巴',
+    '42': '想升你两巴掌',
     '43': '我顶你的肺，我戳你个咀',
     '44': '人之初，口多多！！手指指，食鸡屎！！',
     '45': '丢',
@@ -310,7 +310,7 @@ def evening():
 def clear_cache():
     global rec_msg_dict
     global dog_num
-    dog_num = 3
+    dog_num = 1
 
     # 当前时间
     cur_time = time.time()
