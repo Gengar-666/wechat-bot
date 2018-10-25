@@ -27,14 +27,15 @@ img_file = os.path.join(os.getcwd(), 'img/')
 rec_msg_dict = {}  
 
 # 关闭的讨论组集合
-closeArr = []
+closeArr = ['🚙 谜之时尚④']
 
 # 怼狗次数
-dog_num = 0
+dog_num = 1
 
 # 图灵API接口
 api_url = 'http://openapi.tuling123.com/openapi/api/v2'
 
+# 请求头
 headers = {
     'Content-Type': 'application/json',
     'Host': 'openapi.tuling123.com',
@@ -106,18 +107,34 @@ dog_Reply = {
     '60': '叫爸爸'
 }
 
+# 好友信息监听
+@itchat.msg_register([TEXT, PICTURE, RECORDING, ATTACHMENT, VIDEO], isFriendChat=True)
+def handle_friend_msg(msg):
+    if msg['Content'] == '更新次数':
+        global dog_num
+        dog_num = 1
+
+
 # 讨论组信息监听
-@itchat.msg_register([TEXT, PICTURE, MAP, CARD, RECORDING, ATTACHMENT, VIDEO, SHARING, SYSTEM, FRIENDS, NOTE], isGroupChat=True)
+@itchat.msg_register([TEXT, PICTURE, MAP, CARD, RECORDING, ATTACHMENT, VIDEO, SHARING], isGroupChat=True)
 def information(msg):
     global closeArr
-    botName = str(itchat.get_friends(update=True)[0]['NickName'])
+    # 机器人昵称
+    botName = str(itchat.get_friends(update=True)[0]['NickName']).decode()
+    # 讨论组集合
     chat_rooms = itchat.get_chatrooms()
-    msg_id = msg['MsgId']
-    msg_from_user = str(msg['ActualNickName'])
+    # 当前讨论组名称
+    room_name = str(msg['User']['NickName']).decode()
+    # 消息id
+    msg_id = str(msg['MsgId']).decode()
+    # 发消息人昵称
+    msg_from_user = str(msg['ActualNickName']).decode()
+    # 消息内容
     msg_content = ''
     # 收到信息的时间
     msg_time_rec = time.strftime("%Y-%m-%d %H:%M%S", time.localtime())
     msg_create_time = msg['CreateTime']
+    # 消息类型
     msg_type = msg['Type']
 
     if msg['Type'] == 'Text' \
@@ -151,7 +168,7 @@ def information(msg):
 
     isCall = re.match(r'(.*)机器猫(.*)', str(msg_content))
 
-    if len(chat_rooms) > 0 and not msg['User']['NickName'] in closeArr:
+    if len(chat_rooms) > 0 and not room_name in closeArr:
         if re.findall(r"王二狗", msg_from_user) \
             or re.findall(r"哈小奇难得", msg_from_user):
             random_num = random.randint(1,60)
@@ -172,14 +189,14 @@ def information(msg):
         
         elif isCall and not msg['IsAt']:
             if isCall.group(2) == '':
-                img_random = random.randint(1, 25)
+                img_random = random.randint(1, 23)
                 if img_random < 20:
                     itchat.send_image(img_file + 'cat' + str(img_random) + '.jpg', msg['FromUserName'])
                 else:
                     itchat.send_msg('喵喵喵~', msg['FromUserName'])
             else:
                 if isCall.group(2).strip() == '关闭' and msg_from_user == u'\uabed':
-                    closeArr.append(msg['User']['NickName'])
+                    closeArr.append(room_name)
                     itchat.send_msg('机器猫已关闭', msg['FromUserName'])
                 elif not choose_song(isCall.group(2), msg['FromUserName']):
                     tulingBotReply(isCall.group(2), msg['FromUserName'])
@@ -190,21 +207,21 @@ def information(msg):
         elif msg['isAt']:
             msg_content = str(msg_content[len(botName)+1:]).strip().replace(" ", "")
             if msg_content == '':
-                img_random = random.randint(1, 25)
+                img_random = random.randint(1, 23)
                 if img_random < 20:
                     itchat.send_image(img_file + 'cat' + str(img_random) + '.jpg', msg['FromUserName'])
                 else:
                     itchat.send_msg('喵喵喵~', msg['FromUserName'])
             else:
                 if msg_content.strip() == '关闭' and msg_from_user == u'\uabed':
-                    closeArr.append(msg['User']['NickName'])
+                    closeArr.append(room_name)
                     itchat.send_msg('机器猫已关闭', msg['FromUserName'])
                 elif not choose_song(isCall.group(2), msg['FromUserName']):
                     tulingBotReply(isCall.group(2), msg['FromUserName'])
 
-    elif len(chat_rooms) > 0 and msg['User']['NickName'] in closeArr: 
-        if re.match(r'(.*)开启(.*)', str(msg['Content'])) and msg['ActualNickName'] == u'\uabed' and msg['User']['NickName'] in closeArr:
-            closeArr.remove(msg['User']['NickName'])
+    elif len(chat_rooms) > 0 and room_name in closeArr: 
+        if re.match(r'(.*)开启(.*)', str(msg['Content'])) and msg_from_user == u'\uabed':
+            closeArr.remove(room_name)
             itchat.send_msg('机器猫已开启', msg['FromUserName'])
 
 @itchat.msg_register([NOTE], isFriendChat=True, isGroupChat=True)
@@ -242,11 +259,11 @@ def revoke_msg(msg):
             if str(old_msg.get('msg_type')) == 'Sharing' \
                 or str(old_msg.get('msg_type')) == 'Map' \
                 or str(old_msg.get('msg_type')) == 'Card':
-                itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), msg['FromUserName'])
-                itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), toUserName="filehelper")
+                itchat.send_msg(str(old_msg.get('msg_from_user')) + "撤回了" + str(revoke_file_type) + ": " + str(old_msg.get('msg_content')), msg['FromUserName'])
+                itchat.send_msg(str(old_msg.get('msg_from_user')) + "撤回了" + str(revoke_file_type) + ": " + str(old_msg.get('msg_content')), toUserName="filehelper")
             else:
-                itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": 具体什么内容我不告诉你"), msg['FromUserName'])
-                itchat.send_msg(str(old_msg.get('msg_from_user') + "撤回了" + revoke_file_type + ": " + old_msg.get('msg_content')), toUserName="filehelper")
+                itchat.send_msg(str(old_msg.get('msg_from_user')) + "撤回了" + str(revoke_file_type), msg['FromUserName'])
+                itchat.send_msg(str(old_msg.get('msg_from_user')) + "撤回了" + str(revoke_file_type) + ": " + str(old_msg.get('msg_content')), toUserName="filehelper")
 
         # 判断文msg_content是否存在，不存在说明可能是
             if os.path.exists(os.path.join(rec_tmp_dir, old_msg.get('msg_content'))):
@@ -263,8 +280,9 @@ def revoke_msg(msg):
 
 #点歌
 def choose_song(msg, user):
-    if re.match(r'(.*)点歌(.*)', msg):
-        m_name = re.match(r'(.*)点歌(.*)', msg).group(2).strip()
+    msg_content = re.match(r'(.*)点歌(.*)', msg) or re.match(r'(.*)首(.*)', msg)
+    if msg_content:
+        m_name = msg_content.group(2).strip()
         result = rq.get('http://47.99.180.56:3000/search?keywords=' + m_name + '&limit=1').json()['result']
         play_id = result['songs'][0]['id']
         music_name = result['songs'][0]['name']
@@ -317,9 +335,9 @@ def clear_cache():
     for key in list(rec_msg_dict.keys()):
         if int(cur_time) - int(rec_msg_dict.get(key).get('msg_create_time')) > 120:
             if not rec_msg_dict.get(key).get('msg_type') == 'Text' \
-                or not rec_msg_dict.get(key).get('msg_type') == 'Sharing' \
-                or not rec_msg_dict.get(key).get('msg_type') == 'Card' \
-                or not rec_msg_dict.get(key).get('msg_type') == 'Map':
+                and not rec_msg_dict.get(key).get('msg_type') == 'Sharing' \
+                and not rec_msg_dict.get(key).get('msg_type') == 'Card' \
+                and not rec_msg_dict.get(key).get('msg_type') == 'Map':
                 file_path = os.path.join(rec_tmp_dir, rec_msg_dict.get(key).get('msg_content'))
                 if os.path.exists(file_path):
                     os.remove(file_path)
