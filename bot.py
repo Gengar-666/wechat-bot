@@ -327,10 +327,8 @@ def evening():
 # 每隔五种分钟执行一次清理任务
 def clear_cache():
     global rec_msg_dict
-
     # 当前时间
     cur_time = time.time()
-
     # 遍历字典，如果有创建时间超过2分钟(120s)的记录，删除，非文本的话，连文件也删除
     for key in list(rec_msg_dict.keys()):
         if int(cur_time) - int(rec_msg_dict.get(key).get('msg_create_time')) > 120:
