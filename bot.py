@@ -27,7 +27,7 @@ img_file = os.path.join(os.getcwd(), 'img/')
 rec_msg_dict = {}  
 
 # 关闭的讨论组集合
-closeArr = ['🚙 谜之时尚④']
+closeArr = []
 
 # 怼狗次数
 dog_num = 1
@@ -120,7 +120,7 @@ def handle_friend_msg(msg):
 def information(msg):
     global closeArr
     # 机器人昵称
-    botName = str(itchat.get_friends(update=True)[0]['NickName']).decode()
+    botName = str(itchat.get_friends(update=True)[0]['NickName'])
     # 讨论组集合
     chat_rooms = itchat.get_chatrooms()
     # 当前讨论组名称
@@ -128,7 +128,7 @@ def information(msg):
     # 消息id
     msg_id = str(msg['MsgId']).decode()
     # 发消息人昵称
-    msg_from_user = str(msg['ActualNickName']).decode()
+    msg_from_user = str(msg['ActualNickName'])
     # 消息内容
     msg_content = ''
     # 收到信息的时间
@@ -315,15 +315,6 @@ def morning():
     for i in itchat.get_chatrooms():
         itchat.send_msg('小哥哥小姐姐们，古德摸宁！', i['UserName'])
 
-# 定时问候任务
-def afternoon():
-    for i in itchat.get_chatrooms():
-        itchat.send_msg('小哥哥小姐姐们，你们特么的下午好啊！', i['UserName'])
-
-def evening():
-    for i in itchat.get_chatrooms():
-        itchat.send_msg('小哥哥小姐姐们，你们特么的晚上好啊！', i['UserName'])
-
 # 每隔五种分钟执行一次清理任务
 def clear_cache():
     global rec_msg_dict
@@ -350,8 +341,6 @@ def start_schedule():
     sched.add_job(clear_cache, 'interval', minutes=2)
     sched.add_job(init_dog_num, 'interval', minutes=30)
     sched.add_job(morning, 'cron', hour=8)
-    sched.add_job(afternoon, 'cron', hour=13)
-    sched.add_job(evening, 'cron', hour=20)
     sched.start()
 
 # 退出停止所有任务并清空缓存文件夹
